@@ -1,109 +1,133 @@
+var area_cartas = document.getElementById("areas_cartas")
+var tabuleiro = document.getElementById("tabuleiro")
 
-var carta1 = ""
-var carta2 = ""
-var pontuação = 0
-var bg = "rgb(66, 69, 88)"
-var n = []
+var card_temp = null
+var card_temp2 = null
 
+var lista_cores = []
+var cor_fundo = "rgb(70, 50, 50)"
 
-function _click(num){
+var dificuldade
+var score_parcial = 0
+var score_total = 0
 
-    
-    var c = window.getComputedStyle(document.getElementById("c"+num)).getPropertyValue("background-color")
+var simbolos = ["♬", "✂", "☂", "❤", "❀", "♜", "♔", "☯", "☺", "✈", "✉", "✌", "✍", "✎", "✰", "▽", "◍","◎", "◩"]
 
-    if (c == bg){
-        if (carta1 == ""){
-            carta1 = num
-            escolhas(num);
+function Add_Tag(tag, attr, conteudo){
+    if (conteudo == undefined) { conteudo = ""}
+    if (attr == undefined) { attr = ""}
+    return "<"+tag+" "+attr+">"+conteudo+"</"+tag+">"
+}
+
+function click_Card(n){
+
+    console.log(n)
+
+    document.getElementById(n).style.backgroundColor = "rgb("+lista_cores[n]+")"
+    document.getElementById(n).innerHTML = simbolos[lista_cores.indexOf(lista_cores[n])]
+
+    if(card_temp == null){ card_temp = n}
+    else if (card_temp2 == null && card_temp != n){
+
+        card_temp2 = n
+
+        if (lista_cores[card_temp] == lista_cores[card_temp2]) {
+
+            score_total += 1
+            score_parcial += 1
+
+            document.getElementById("score").innerHTML = "score: "+ score_total
             
-        } else  if(carta2 == ""){
-            carta2 = num
-            escolhas(num);
+            console.log("acertou")
 
-            var c1 = document.getElementById("c"+carta1).style.backgroundColor
-            var c2 = document.getElementById("c"+carta2).style.backgroundColor
+            card_temp = null
+            card_temp2 = null
 
-            if(c1 == c2){
-                pontuação += 1
-                document.getElementById("pontos").innerHTML = "pontos : "+ pontuação
+            if (score_parcial == dificuldade/2) 
+            { 
+                score_parcial = 0
             }
-            
-        } else if (carta1 == num){
+        }
+    }else if(card_temp != n && card_temp2 != n){
+        
+        document.getElementById(card_temp).style.backgroundColor = cor_fundo
+        document.getElementById(card_temp2).style.backgroundColor = cor_fundo
+        document.getElementById(card_temp).innerHTML = ""
+        document.getElementById(card_temp2).innerHTML = ""
+        
+        card_temp = n
+        card_temp2 = null
 
-            carta1 = ""
-            document.getElementById("c"+num).style.backgroundColor = bg
-            
-        } else  if(carta2 == num){
+    }
+}
 
-            carta2 = ""
-            document.getElementById("c"+num).style.backgroundColor = bg
-            
-        } else{
-            var c1 = document.getElementById("c"+carta1).style.backgroundColor
-            var c2 = document.getElementById("c"+carta2).style.backgroundColor
+function generateRan(m){
 
-                console.log(c1+"  "+c2)
-            if(c1 != c2){
+    dificuldade = m
+
+    document.getElementById("dificuldade").remove()
+
+    tabuleiro.innerHTML += Add_Tag("div","id= 'dificuldade'")
+    document.getElementById("dificuldade").innerHTML += Add_Tag("button","onclick='b_reset()'", "RESET")
+
+    tabuleiro.innerHTML += Add_Tag("div", "id = 'areas_cartas'") 
+
+    var max = m;
+    var random = [];
+    var cor_bool
+    var cor_temp
+
+    for(var i = 0; i<max ; i++){
+
+        var temp = Math.floor(Math.random()*max);
+
+        if(random.indexOf(temp) == -1){
+
+            random.push(temp);
+            document.getElementById("areas_cartas").innerHTML += Add_Tag("button","id='"+temp+"'"+" class = 'carta' onclick = 'click_Card("+temp+")'", "");
+            console.log("button","id='"+temp+"'"+" class = 'carta' onclick = 'click_Card("+temp+")'", "")
+            if (cor_bool == true) {
+                lista_cores.push(cor_temp)
+                cor_bool = false
                 
-                console.log(c1+ " " + c2)
-                document.getElementById("c"+carta1).style.backgroundColor = bg
-                document.getElementById("c"+carta2).style.backgroundColor = bg
-            } 
-            
-            escolhas(num);
-            carta1 = num
-            carta2 = ""
+            }else{
+                cor_temp = [parseInt(Math.random()*250), parseInt(Math.random()*250), parseInt(Math.random()*250)]
+                lista_cores.push(cor_temp)
+                cor_bool = true
+                
+            }
+        }
+        else{
+        i--;
         }
     }
- 
+
+    console.log(lista_cores)
+    console.log(random)
+    console.log("dificuldade: " + dificuldade)
+
 }
 
-function random(){
 
-    for (var i = 0; i < 8; i++){
-        n[i] = i;
-        document.getElementById("c"+i).style.backgroundColor = bg
-        
-    }
+//generateRan(6)
 
-    var x
-    var tmp
-    for (var p = n.length; p;){
-        x = Math.random() * p-- |  0;
-        tmp = n[x]
-        n[x] = n[p]
-        n[p] = tmp
-    }
-    console.log(n)
+function b_dificuldade() {
+    tabuleiro.innerHTML += Add_Tag("div","id= 'dificuldade'","")
+    document.getElementById("dificuldade").innerHTML += Add_Tag("button","onclick='generateRan(8)'", "Fácil")
+    document.getElementById("dificuldade").innerHTML += Add_Tag("button","onclick='generateRan(12)'", "Médio")
+    document.getElementById("dificuldade").innerHTML += Add_Tag("button","onclick='generateRan(16)'", "Difícil")
+    console.log("botões de dificuldade")
 }
 
-function escolhas(num){
-    var l = parseInt(num)
-    switch (n[l]){
-        case 0:
-            document.getElementById("c"+num).style.backgroundColor = "red"
-            break;
-        case 1:
-            document.getElementById("c"+num).style.backgroundColor = "blue"
-            break;
-         case 2:
-            document.getElementById("c"+num).style.backgroundColor = "red"
-            break;
-        case 3:
-            document.getElementById("c"+num).style.backgroundColor = "blue"
-            break;
-        case 4:
-            document.getElementById("c"+num).style.backgroundColor = "green"
-            break;
-        case 5:
-            document.getElementById("c"+num).style.backgroundColor = "yellow"
-            break;
-         case 6:
-            document.getElementById("c"+num).style.backgroundColor = "green"
-            break;
-        case 7:
-            document.getElementById("c"+num).style.backgroundColor = "yellow"
-            break;    
+function b_reset() {
+    document.getElementById("dificuldade").remove()
+    document.getElementById("areas_cartas").remove()
+    b_dificuldade()
+    console.log("botão de reset")
 
-    }
 }
+
+b_dificuldade()
+
+
+
